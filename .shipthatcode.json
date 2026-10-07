@@ -1,0 +1,50 @@
+{
+  "course": "build-elf-loader",
+  "language": "rust",
+  "language_id": 73,
+  "entrypoint": "main.rs",
+  "version": 1,
+  "content_hash": "364d47a141ecda1d",
+  "lessons": [
+    {
+      "slug": "what-is-elf",
+      "tests_hash": "00ed3ebdaab5"
+    },
+    {
+      "slug": "elf-header",
+      "tests_hash": "0a2c01735334"
+    },
+    {
+      "slug": "program-headers",
+      "tests_hash": "b328001a7b4c"
+    },
+    {
+      "slug": "static-loading",
+      "tests_hash": "14c5a57ff52e"
+    },
+    {
+      "slug": "sections",
+      "tests_hash": "bb9a9fccb39a"
+    },
+    {
+      "slug": "symbols",
+      "tests_hash": "9a0585306704"
+    },
+    {
+      "slug": "dynamic-linking",
+      "tests_hash": "6096a08da54d"
+    },
+    {
+      "slug": "got-plt",
+      "tests_hash": "e896d38d6091"
+    },
+    {
+      "slug": "relocations",
+      "tests_hash": "0f3bc4c36a2f"
+    },
+    {
+      "slug": "production-elf",
+      "tests_hash": "44046b00132c"
+    }
+  ]
+}
