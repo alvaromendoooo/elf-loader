@@ -12,27 +12,24 @@ pub fn elf_magic_handler(hex_value: impl AsRef<str>) -> String {
         byte_split.push(chunk);
         current = rest;
     }
-    match byte_split[..] {
-        ["7f", "45", "4c", "46", ..] => {
-            // Check for the class value
-            let mut class: &str = "";
-            match byte_split[4] {
-                "01" => class = "32",
-                "02" => class = "64",
-                _ => {}
+
+    match byte_split.get(..4) {
+        Some(&["7f", "45", "4c", "46"]) => {
+            let class = match byte_split.get(4) {
+                Some(&"01") => "32",
+                Some(&"02") => "64",
+                _ => "",
             };
 
-            // Check for endian
-            let mut endian: &str = "";
-            match byte_split[5] {
-                "01" => endian = "LE",
-                "02" => endian = "BE",
-                _ => {}
-            }
+            let endian = match byte_split.get(5) {
+                Some(&"01") => "LE",
+                Some(&"02") => "BE",
+                _ => "",
+            };
 
-            result.push_str(format!("ELF{} {}", class, endian).as_str());
+            result = format!("ELF{} {}", class, endian);
         },
-        _ =>  result.push_str("NOT_ELF")
+        _ => result.push_str("NOT_ELF"),
     }
 
     result
