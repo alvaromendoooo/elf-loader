@@ -1,0 +1,4 @@
+DEF a.o main
+DEF b.o helper
+UND a.o helper
+UND a.o missing

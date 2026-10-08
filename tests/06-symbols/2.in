@@ -1,0 +1,6 @@
+DEF libc.o malloc
+DEF libc.o free
+DEF app.o main
+UND app.o malloc
+UND app.o free
+UND app.o unknown_sym

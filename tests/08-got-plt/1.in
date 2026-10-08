@@ -1,0 +1,4 @@
+CALL foo
+CALL bar
+CALL foo
+CALL baz

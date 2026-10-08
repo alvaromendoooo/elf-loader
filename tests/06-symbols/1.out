@@ -1,0 +1,2 @@
+a.o:helper:b.o
+a.o:missing:UNDEFINED

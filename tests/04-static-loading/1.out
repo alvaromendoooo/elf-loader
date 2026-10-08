@@ -1,0 +1,8 @@
+3
+prog
+-h
+foo
+NULL
+PATH=/bin
+USER=alice
+NULL

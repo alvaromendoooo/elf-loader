@@ -1,0 +1,4 @@
+LIB main NEEDS libc,libm
+LIB libc NEEDS
+LIB libm NEEDS libc
+START main

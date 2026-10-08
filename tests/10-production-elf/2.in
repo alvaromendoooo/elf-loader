@@ -1,0 +1,4 @@
+PIE=yes
+RELRO_FULL=yes
+NX=yes
+CANARY=yes

@@ -1,0 +1,2 @@
+ARGS prog -h foo
+ENVS PATH=/bin USER=alice

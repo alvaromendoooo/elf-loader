@@ -1,0 +1,2 @@
+ARGS onlyprog
+ENVS PATH=/usr/bin

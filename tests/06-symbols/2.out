@@ -1,0 +1,3 @@
+app.o:malloc:libc.o
+app.o:free:libc.o
+app.o:unknown_sym:UNDEFINED
