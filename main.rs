@@ -83,6 +83,31 @@ pub fn segment_load(virtual_address: i32, file_size: i32, memory_size: i32, flag
     result
 }
 
+pub fn lay_out_args(args: impl AsRef<str>) -> String {
+    let sliced_args: Vec<&str> = args.as_ref().split_whitespace().collect();
+    let mut result = String::new();
+
+    result.push_str(format!("{}", sliced_args.len()).as_str());
+    for &arg in sliced_args.iter(){
+        result.push_str(format!("\n{}", arg).as_str());
+    }
+
+    result.push_str("\nNULL");
+    result
+}
+
+pub fn lay_out_envs(envs: impl AsRef<str>) -> String {
+    let sliced_envs: Vec<&str> = envs.as_ref().split_whitespace().collect();
+    let mut result = String::new();
+
+    for &env in sliced_envs.iter(){
+        result.push_str(format!("\n{}", env).as_str());
+    }
+
+    result.push_str("\nNULL");
+    result
+}
+
 fn main() {
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
@@ -104,6 +129,8 @@ fn main() {
 
                 println!("{}", segment_load(virtual_address, file_size, memory_size, flags));
             },
+            "ARGS" => println!("{}", lay_out_args(parts[1..].join(" "))),
+            "ENVS" => {println!("{}", lay_out_envs(parts[1..].join(" ")))}
             _ => break
         }
         //println!("{}", elf_header_handler(parts[0]));
