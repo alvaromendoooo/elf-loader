@@ -1,5 +1,33 @@
-use std::{cmp, io::{self, BufRead}};
+use std::{cmp, collections::HashMap, io::{self, BufRead}};
 
+#[derive(Debug, Default)]
+pub struct SymbolRegistry {
+    pub register: HashMap<String, Vec<String>>
+}
+
+impl SymbolRegistry {
+    pub fn register_symbols(&mut self, obj: String, symbol: String) -> Result<(), String> {
+        let symbols = self.register.entry(obj.clone()).or_default();
+
+        if symbols.contains(&symbol) {
+            return Err(format!("Register {} symbol {} already registered.", obj, symbol));
+        }
+
+        symbols.push(symbol);
+
+        Ok(())
+    }
+
+    pub fn resolve_symbol(&self, obj: &str, symbol: &str) -> String {
+        let found_key = self.register.iter().find(|(_, symbols)| symbols.contains(&symbol.to_string()));
+
+        match found_key {
+            Some((key, _)) => format!("{}:{}:{}", obj, symbol, key),
+            None => format!("{}:{}:UNDEFINED", obj, symbol),
+        }
+    }
+
+}
 
 pub fn elf_e_type(byte_split: &Vec<&str>) -> &'static str {
     let mut hex_str = String::new();
@@ -129,6 +157,7 @@ pub fn identify_section_type(sh_type: i32) -> String {
 
 fn main() {
     let stdin = io::stdin();
+    let mut symbol_resolution = SymbolRegistry::default();
     for line in stdin.lock().lines() {
         let l = line.unwrap();
         if l.is_empty() { continue; }
@@ -138,7 +167,7 @@ fn main() {
             continue;
         }
 
-        /*match parts[0] {
+        match parts[0] {
             //"CHECK" => println!("{}", elf_magic_handler(parts[1])),
             "LOAD" => {
                 let virtual_address: i32 = parts[1].parse().unwrap();
@@ -149,10 +178,17 @@ fn main() {
                 println!("{}", segment_load(virtual_address, file_size, memory_size, flags));
             },
             "ARGS" => println!("{}", lay_out_args(parts[1..].join(" "))),
-            "ENVS" => {println!("{}", lay_out_envs(parts[1..].join(" ")))}
+            "ENVS" => {println!("{}", lay_out_envs(parts[1..].join(" ")))},
+            "DEF" => {
+                match symbol_resolution.register_symbols(parts[1].to_string(), parts[2].to_string()) {
+                    Ok(_) => {},
+                    Err(e) => println!("{}", e),
+                }
+            },
+            "UND" => println!("{}", symbol_resolution.resolve_symbol(parts[1], parts[2])),
             _ => break
-        }*/
+        }
         //println!("{}", elf_header_handler(parts[0]));
-        println!("{}", identify_section_type(parts[0].parse::<i32>().unwrap()));
+        //println!("{}", identify_section_type(parts[0].parse::<i32>().unwrap()));
     }
 }
