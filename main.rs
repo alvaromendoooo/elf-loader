@@ -70,7 +70,17 @@ pub fn elf_header_handler(hex_value: impl AsRef<str>) -> String {
 }
 
 pub fn segment_load(virtual_address: i32, file_size: i32, memory_size: i32, flags: impl AsRef<str>) -> String {
+    let mut result = String::new();
+    
+    result.push_str(format!("MAP {} SIZE {} PROT {}", virtual_address, memory_size, flags.as_ref()).as_str());
 
+    if memory_size > file_size {
+        let bss_start = virtual_address + file_size;
+        let bss_size = memory_size - file_size;
+        result.push_str(format!("\nBSS {} {}", bss_start, bss_size).as_str());
+    }
+    
+    result
 }
 
 fn main() {
@@ -84,10 +94,18 @@ fn main() {
             continue;
         }
 
-        /*match parts[0] {
-            "CHECK" => println!("{}", elf_magic_handler(parts[1])),
+        match parts[0] {
+            //"CHECK" => println!("{}", elf_magic_handler(parts[1])),
+            "LOAD" => {
+                let virtual_address: i32 = parts[1].parse().unwrap();
+                let file_size: i32 = parts[2].parse().unwrap();
+                let memory_size: i32 = parts[3].parse().unwrap();
+                let flags = parts[4];
+
+                println!("{}", segment_load(virtual_address, file_size, memory_size, flags));
+            },
             _ => break
-        }*/
-        println!("{}", elf_header_handler(parts[0]));
+        }
+        //println!("{}", elf_header_handler(parts[0]));
     }
 }
