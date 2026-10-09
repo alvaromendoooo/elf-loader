@@ -69,6 +69,10 @@ pub fn elf_header_handler(hex_value: impl AsRef<str>) -> String {
     result
 }
 
+pub fn segment_load(virtual_address: i32, file_size: i32, memory_size: i32, flags: impl AsRef<str>) -> String {
+
+}
+
 fn main() {
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
