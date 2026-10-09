@@ -108,6 +108,25 @@ pub fn lay_out_envs(envs: impl AsRef<str>) -> String {
     result
 }
 
+pub fn identify_section_type(sh_type: i32) -> String {
+    match sh_type {
+        0 => "NULL".to_string(),
+        1 => "PROGBITS".to_string(),
+        2 => "SYMTAB".to_string(),
+        3 => "STRTAB".to_string(),
+        4 => "RELA".to_string(),
+        5 => "HASH".to_string(),
+        6 => "DYNAMIC".to_string(),
+        7 => "NOTE".to_string(),
+        8 => "NOBITS".to_string(),
+        9 => "REL".to_string(),
+        11 => "DYNSYM".to_string(),
+        14 => "INIT_ARRAY".to_string(),
+        15 => "FINI_ARRAY".to_string(),
+        _ => "UNKNOWN".to_string()
+    }
+}
+
 fn main() {
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
@@ -119,7 +138,7 @@ fn main() {
             continue;
         }
 
-        match parts[0] {
+        /*match parts[0] {
             //"CHECK" => println!("{}", elf_magic_handler(parts[1])),
             "LOAD" => {
                 let virtual_address: i32 = parts[1].parse().unwrap();
@@ -132,7 +151,8 @@ fn main() {
             "ARGS" => println!("{}", lay_out_args(parts[1..].join(" "))),
             "ENVS" => {println!("{}", lay_out_envs(parts[1..].join(" ")))}
             _ => break
-        }
+        }*/
         //println!("{}", elf_header_handler(parts[0]));
+        println!("{}", identify_section_type(parts[0].parse::<i32>().unwrap()));
     }
 }
