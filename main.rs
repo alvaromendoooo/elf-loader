@@ -101,10 +101,10 @@ pub fn lay_out_envs(envs: impl AsRef<str>) -> String {
     let mut result = String::new();
 
     for &env in sliced_envs.iter(){
-        result.push_str(format!("\n{}", env).as_str());
+        result.push_str(format!("{}\n", env).as_str());
     }
 
-    result.push_str("\nNULL");
+    result.push_str("NULL");
     result
 }
 
