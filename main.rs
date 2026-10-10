@@ -1,8 +1,53 @@
-use std::{cmp, collections::HashMap, io::{self, BufRead}};
+use std::{cmp, collections::{BTreeMap, HashMap, HashSet, VecDeque}, io::{self, BufRead}};
 
 #[derive(Debug, Default)]
 pub struct SymbolRegistry {
     pub register: HashMap<String, Vec<String>>
+}
+
+#[derive(Debug, Default)]
+pub struct LibraryDependencies {
+    pub library: BTreeMap<String, Vec<String>>
+}
+
+impl LibraryDependencies {
+    pub fn register_library_dependencies(&mut self, main_lib: String, dep_libs: String) -> Result<(), String> {
+        let separated_dep_libs: Vec<&str> = dep_libs.as_str().split(',').collect();
+        let libraries_per_main = self.library.entry(main_lib.clone()).or_default();
+
+        for lib in separated_dep_libs.iter() {
+            if libraries_per_main.contains(&lib.to_string()) {
+                return Err(format!("Library {} already depends on {}", main_lib, lib));
+            } else {
+                libraries_per_main.push(lib.to_string());
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn reachable_libraries(&self, main_lib: &str) -> String {
+        let mut visited = HashSet::new();
+        let mut queue = VecDeque::new();
+        let mut order = Vec::new();
+
+        queue.push_back(main_lib.to_string());
+        visited.insert(main_lib.to_string());
+
+        while let Some(current) = queue.pop_front() {
+            order.push(current.clone());
+
+            if let Some(sub_libraries) = self.library.get(&current) {
+                for sub_lib in sub_libraries {
+                    if visited.insert(sub_lib.clone()) {
+                        queue.push_back(sub_lib.clone());
+                    }
+                }
+            }
+        }
+
+        order.join("\n")
+    }
 }
 
 impl SymbolRegistry {
@@ -158,6 +203,7 @@ pub fn identify_section_type(sh_type: i32) -> String {
 fn main() {
     let stdin = io::stdin();
     let mut symbol_resolution = SymbolRegistry::default();
+    let mut library_dependencies = LibraryDependencies::default();
     for line in stdin.lock().lines() {
         let l = line.unwrap();
         if l.is_empty() { continue; }
@@ -186,6 +232,14 @@ fn main() {
                 }
             },
             "UND" => println!("{}", symbol_resolution.resolve_symbol(parts[1], parts[2])),
+            "LIB" => {
+                let dep_libs = parts.get(3).unwrap_or(&"").to_string();
+                match library_dependencies.register_library_dependencies(parts[1].to_string(), dep_libs) {
+                    Ok(_) => {},
+                    Err(e) => println!("{}", e),
+                }
+            },
+            "START" => println!("{}", library_dependencies.reachable_libraries(parts[1])),
             _ => break
         }
         //println!("{}", elf_header_handler(parts[0]));
