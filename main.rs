@@ -1,5 +1,6 @@
 use std::{cmp, collections::{BTreeMap, HashMap, HashSet, VecDeque}, io::{self, BufRead}};
 
+
 #[derive(Debug, Default)]
 pub struct SymbolRegistry {
     pub register: HashMap<String, Vec<String>>
@@ -8,6 +9,30 @@ pub struct SymbolRegistry {
 #[derive(Debug, Default)]
 pub struct LibraryDependencies {
     pub library: BTreeMap<String, Vec<String>>
+}
+
+#[derive(Debug, Default)]
+pub struct LazyResolution {
+    pub resolution: HashMap<String, String>,
+}
+
+impl LazyResolution {
+    pub fn resolve_resolution(&mut self, symbol: String) -> String {
+        let result;
+
+        match self.resolution.get(&symbol) {
+            Some(sym) => {
+                result = format!("CACHED {} {}", symbol.clone(), sym);
+            },
+            None => {
+                let fake_address_generator = format!("0x{:X}", 0x1000 + ((self.resolution.len() + 1) * 0x10));
+                self.resolution.insert(symbol.clone(), fake_address_generator.clone());
+                result = format!("RESOLVE {} {}", symbol, fake_address_generator);
+            }
+        }
+
+        result
+    }
 }
 
 impl LibraryDependencies {
@@ -204,6 +229,7 @@ fn main() {
     let stdin = io::stdin();
     let mut symbol_resolution = SymbolRegistry::default();
     let mut library_dependencies = LibraryDependencies::default();
+    let mut lazy_resolution = LazyResolution::default();
     for line in stdin.lock().lines() {
         let l = line.unwrap();
         if l.is_empty() { continue; }
@@ -240,6 +266,7 @@ fn main() {
                 }
             },
             "START" => println!("{}", library_dependencies.reachable_libraries(parts[1])),
+            "CALL" => println!("{}", lazy_resolution.resolve_resolution(parts[1].to_string())),
             _ => break
         }
         //println!("{}", elf_header_handler(parts[0]));
