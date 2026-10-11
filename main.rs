@@ -225,6 +225,21 @@ pub fn identify_section_type(sh_type: i32) -> String {
     }
 }
 
+pub fn x86_64_relocation(typ: &str, offset: u64, base: u64, addend: u64) -> String {
+
+    match typ {
+        "R_X86_64_64" => {
+            let resolved_value = base + addend;
+            format!("0x{:X}", resolved_value)
+        },
+        "R_X86_64_PC32" => {
+            let resolved_value = base + addend - offset;
+            format!("0x{:X}", resolved_value)
+        },
+        _ => String::new()
+    }
+}
+
 fn main() {
     let stdin = io::stdin();
     let mut symbol_resolution = SymbolRegistry::default();
@@ -267,6 +282,13 @@ fn main() {
             },
             "START" => println!("{}", library_dependencies.reachable_libraries(parts[1])),
             "CALL" => println!("{}", lazy_resolution.resolve_resolution(parts[1].to_string())),
+            "RELOC" => {
+                let rel_type = parts[1];
+                let arg1 = u64::from_str_radix(parts[2].trim_start_matches("0x"), 16).unwrap();
+                let arg2 = u64::from_str_radix(parts[3].trim_start_matches("0x"), 16).unwrap();
+                let arg3 = u64::from_str_radix(parts[4].trim_start_matches("0x"), 16).unwrap();
+                println!("{}", x86_64_relocation(rel_type, arg1, arg2, arg3));
+            },
             _ => break
         }
         //println!("{}", elf_header_handler(parts[0]));
