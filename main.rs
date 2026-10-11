@@ -240,11 +240,26 @@ pub fn x86_64_relocation(typ: &str, offset: u64, base: u64, addend: u64) -> Stri
     }
 }
 
+pub fn hardening_check(flag: &str, global_score: &mut i32) {
+    let splitted_flag_content: Vec<&str> = flag.split("=").collect();
+
+    match splitted_flag_content[0] {
+        "PIE" | "RELRO_FULL" | "NX" | "CANARY" => {
+            if splitted_flag_content[1].to_lowercase() == "yes" {
+                *global_score += 1;
+            }
+        },
+        _ => *global_score += 0,
+    }
+}
+
 fn main() {
     let stdin = io::stdin();
     let mut symbol_resolution = SymbolRegistry::default();
     let mut library_dependencies = LibraryDependencies::default();
     let mut lazy_resolution = LazyResolution::default();
+    let mut globa_score = 0;
+
     for line in stdin.lock().lines() {
         let l = line.unwrap();
         if l.is_empty() { continue; }
@@ -289,9 +304,12 @@ fn main() {
                 let arg3 = u64::from_str_radix(parts[4].trim_start_matches("0x"), 16).unwrap();
                 println!("{}", x86_64_relocation(rel_type, arg1, arg2, arg3));
             },
-            _ => break
+            _ => {
+                hardening_check(parts[0], &mut globa_score);
+            }
         }
         //println!("{}", elf_header_handler(parts[0]));
         //println!("{}", identify_section_type(parts[0].parse::<i32>().unwrap()));
     }
+    println!("SCORE {}", globa_score);
 }
